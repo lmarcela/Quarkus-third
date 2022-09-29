@@ -1,8 +1,11 @@
 package org.marce.repositories;
 
+import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
+import com.blazebit.persistence.view.EntityViewSetting;
 import org.marce.entities.Customer;
+import org.marce.entities.CustomerView;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -30,8 +33,11 @@ public class CustomerRepository {
     }
 
     @Transactional
-    public List<Customer> listCustomer(){
-        List<Customer> customers = em.createQuery("select p from Customer p").getResultList();
+    //public List<Customer> listCustomer(){
+    public List<CustomerView> listCustomer(){
+        //List<Customer> customers = em.createQuery("select p from Customer p").getResultList();
+        CriteriaBuilder<Customer> cb=cbf.create(em,Customer.class);
+        List<CustomerView> customers = evm.applySetting(EntityViewSetting.create(CustomerView.class),cb).getResultList();
         return customers;
     }
     @Transactional

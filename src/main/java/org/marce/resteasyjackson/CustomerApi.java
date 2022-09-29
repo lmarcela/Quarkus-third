@@ -11,6 +11,7 @@ import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
 import lombok.extern.slf4j.Slf4j;
 import org.marce.entities.Customer;
+import org.marce.entities.CustomerView;
 import org.marce.entities.Product;
 import org.marce.repositories.CustomerRepository;
 
@@ -45,7 +46,7 @@ public class CustomerApi {
 
     @GET
     @Blocking
-    public List<Customer> list() {
+    public List<CustomerView> list() {
         return pr.listCustomer();
     }
 
