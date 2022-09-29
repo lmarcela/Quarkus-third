@@ -1,5 +1,7 @@
 package org.marce.repositories;
 
+import com.blazebit.persistence.CriteriaBuilderFactory;
+import com.blazebit.persistence.view.EntityViewManager;
 import org.marce.entities.Customer;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -12,6 +14,10 @@ import java.util.List;
 public class CustomerRepository {
     @Inject
     EntityManager em;
+    @Inject
+    CriteriaBuilderFactory cbf;
+    @Inject
+    EntityViewManager evm;
 
     @Transactional
     public void createdCustomer(Customer p){
