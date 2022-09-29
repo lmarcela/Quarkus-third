@@ -3,6 +3,7 @@ package org.marce.resteasyjackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.client.WebClientOptions;
@@ -43,23 +44,38 @@ public class CustomerApi {
 
 
     @GET
+    @Blocking
     public List<Customer> list() {
         return pr.listCustomer();
     }
 
     @GET
     @Path("/{Id}")
+    @Blocking
     public Customer getById(@QueryParam("Id") Long Id) {
         return pr.findCustomer(Id);
     }
 
     @GET
     @Path("/{Id}/product")
-    public Customer getByIdProduct(@QueryParam("Id") Long Id) {
-        return null;
+    @Blocking
+    public Uni<Customer> getByIdProduct(@PathParam("Id") Long Id) {
+        return Uni.combine().all().unis(getCustomerReactive(Id),getAllProducts())
+                .combinedWith((v1,v2) -> {
+                    v1.getProducts().forEach(product -> {
+                        v2.forEach(p -> {
+                            if(product.getId().equals(p.getId())){
+                                product.setName(p.getName());
+                                product.setDescription(p.getDescription());
+                                ;                           }
+                        });
+                    });
+                    return v1;
+                });
     }
 
     @POST
+    @Blocking
     public Response add(Customer c) {
         c.getProducts().forEach(p-> p.setCustomer(c));
         pr.createdCustomer(c);
@@ -68,12 +84,14 @@ public class CustomerApi {
 
     @DELETE
     @Path("/{Id}")
+    @Blocking
     public Response delete(@QueryParam("Id") Long Id) {
         Customer customer = pr.findCustomer(Id);
         pr.deleteCustomer(customer);
         return Response.ok().build();
     }
     @PUT
+    @Blocking
     public Response update(Customer p) {
         Customer customer = pr.findCustomer(p.getId());
         customer.setCode(p.getCode());
